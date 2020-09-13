@@ -1,28 +1,22 @@
-import { Machine, assign } from 'xstate';
+import { Machine, assign, send } from 'xstate';
 
-const myDialogEditingStates = {
-  initial: 'init',
+const stopLightState = {
   states: {
-    init: {},
-    // validating
-    saving: {
-      entry: ['myDialogRecordTransient'],
-      invoke: {
-        // id: 'saveUser', // what does this do?
-        src: 'saveUser',
-        onDone: {
-          target: '#app.mydialog.viewing',
-          actions: ['myDialogUpdate']
-        },
-        onError: {
-          target: 'errored',
-          actions: ['myDialogErrored']
-        }
+    green: {
+      // entry: ['sendMinorDelay3Secs'],
+      on: {
+        MINOR: 'yellow'
       }
     },
-    errored: {
+    yellow: {
+      // entry: ['sendMajorDelay1Sec'],
       on: {
-        MYDIALOG_SAVE: 'saving'
+        MAJOR: 'red'
+      }
+    },
+    red: {
+      on: {
+        MAJOR: 'green'
       }
     }
   }
@@ -32,32 +26,35 @@ const appMachine = Machine(
   {
     id: 'app',
     type: 'parallel',
-    context: {
-      myDialogFirstName: '',
-      myDialogError: null,
-      myDialogTransientData: null
-    },
+    initial: 'north.green,east.red',
     states: {
-      mydialog: {
-        initial: 'closed',
+      north: {
+        id: 'north',
+        initial: 'green',
+        ...stopLightState
+      },
+      east: {
+        id: 'east',
+        initial: 'red',
+        ...stopLightState
+      },
+      next: {
+        initial: 'major',
         states: {
-          viewing: {
+          major: {
             on: {
-              MYDIALOG_TOGGLE_OPEN: 'closed',
-              MYDIALOG_EDIT: 'editing'
+              NEXT: {
+                target: 'minor',
+                actions: ['sendMinor']
+              }
             }
           },
-          editing: {
+          minor: {
             on: {
-              MYDIALOG_TOGGLE_OPEN: 'closed',
-              MYDIALOG_ESCAPE: 'viewing',
-              MYDIALOG_SAVE: '.saving'
-            },
-            ...myDialogEditingStates
-          },
-          closed: {
-            on: {
-              MYDIALOG_TOGGLE_OPEN: 'viewing'
+              NEXT: {
+                target: 'major',
+                actions: ['sendMajor']
+              }
             }
           }
         }
@@ -66,26 +63,16 @@ const appMachine = Machine(
   },
   {
     actions: {
-      myDialogRecordTransient: assign((context, data) => ({
-        myDialogTransientData: data,
-        myDialogError: null
+      sendMinorDelay3Secs: send('MINOR', { delay: 3000 }),
+      sendMajorDelay1Sec: send('MAJOR', { delay: 1000 }),
+      sendMajor: send((context, event) => ({
+        type: 'MAJOR'
       })),
-      myDialogUpdate: assign((context, { data: { firstName } }) => ({
-        myDialogFirstName: firstName,
-        myDialogTransientData: null
-      })),
-      myDialogErrored: assign((context, { data: err }) => ({
-        myDialogError: err
+      sendMinor: send((context, event) => ({
+        type: 'MINOR'
       }))
     },
-    services: {
-      saveUser: async (context, { firstName }) => {
-        console.log('in saveUser', firstName);
-        return {
-          firstName: firstName.toUpperCase()
-        };
-      }
-    }
+    services: {}
   }
 );
 

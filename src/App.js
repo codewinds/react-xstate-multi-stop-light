@@ -2,24 +2,12 @@ import React from 'react';
 import './App.css';
 import { useMachine } from '@xstate/react';
 import { appMachine } from './appMachine';
-import { AppServiceContext } from './reactContexts';
-import { MyDialogLayout } from './MyDialogLayout';
-import { delay, upperFirst } from 'lodash/fp';
 import { inspect } from '@xstate/inspect';
 
 inspect({ iframe: false });
 
 const appMachineWithOptions = appMachine.withConfig({
-  services: {
-    saveUser: async (context, { firstName }) => {
-      return new Promise((resolve, reject) => {
-        if (firstName && firstName.startsWith('b')) {
-          return reject(Error(`failed with firstName: ${firstName}`));
-        }
-        delay(2000, () => resolve({ firstName: upperFirst(firstName) }));
-      });
-    }
-  }
+  services: {}
 });
 
 function App() {
@@ -27,32 +15,41 @@ function App() {
     devTools: true
   });
 
-  const myDialogFirstName = current.context.myDialogFirstName;
-  const myDialogError = current.context.myDialogError;
-  const myDialogTransientData = current.context.myDialogTransientData;
-  const myDialogToggleOpen = () => send('MYDIALOG_TOGGLE_OPEN');
-  const myDialogEdit = () => send('MYDIALOG_EDIT');
-  const myDialogSave = ({ firstName }) => send('MYDIALOG_SAVE', { firstName });
-  const myDialogEscape = () => send('MYDIALOG_ESCAPE');
-  const myDialogProps = {
-    myDialogFirstName,
-    myDialogToggleOpen,
-    myDialogEdit,
-    myDialogSave,
-    myDialogError,
-    myDialogTransientData,
-    myDialogEscape
-  };
-
   console.log('current.value', current.value);
   console.log('state.context', current.context);
 
+  const next = () => send('NEXT');
+
   return (
-    <AppServiceContext.Provider value={[current, send]}>
-      <div className="App">
-        <MyDialogLayout {...myDialogProps} />
+    <div className="App">
+      <div className="stopLight" style={{}}>
+        North
+        <Light direction="north" color="red" service={current} />
+        <Light direction="north" color="yellow" service={current} />
+        <Light direction="north" color="green" service={current} />
       </div>
-    </AppServiceContext.Provider>
+      <div className="stopLight" style={{}}>
+        East
+        <Light direction="east" color="red" service={current} />
+        <Light direction="east" color="yellow" service={current} />
+        <Light direction="east" color="green" service={current} />
+      </div>
+      <button onClick={next}>Advance</button>
+    </div>
+  );
+}
+
+function Light({ direction, color, service }) {
+  return (
+    <div style={{}}>
+      <div className="light">
+        {service.matches(`${direction}.${color}`) ? (
+          <div className="core" style={{ backgroundColor: color }}></div>
+        ) : (
+          <div className="core" style={{ backgroundColor: 'grey' }}></div>
+        )}
+      </div>
+    </div>
   );
 }
 
