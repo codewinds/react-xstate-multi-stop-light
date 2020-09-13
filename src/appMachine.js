@@ -1,15 +1,13 @@
-import { Machine, assign, send } from 'xstate';
+import { Machine, send } from 'xstate';
 
 const stopLightState = {
   states: {
     green: {
-      // entry: ['sendMinorDelay3Secs'],
       on: {
         MINOR: 'yellow'
       }
     },
     yellow: {
-      // entry: ['sendMajorDelay1Sec'],
       on: {
         MAJOR: 'red'
       }
@@ -26,7 +24,6 @@ const appMachine = Machine(
   {
     id: 'app',
     type: 'parallel',
-    initial: 'north.green,east.red',
     states: {
       north: {
         id: 'north',
@@ -38,10 +35,21 @@ const appMachine = Machine(
         initial: 'red',
         ...stopLightState
       },
+      south: {
+        id: 'south',
+        initial: 'green',
+        ...stopLightState
+      },
+      west: {
+        id: 'west',
+        initial: 'red',
+        ...stopLightState
+      },
       next: {
         initial: 'major',
         states: {
           major: {
+            // entry: ['sendNextAfter3Seconds'],
             on: {
               NEXT: {
                 target: 'minor',
@@ -50,6 +58,7 @@ const appMachine = Machine(
             }
           },
           minor: {
+            // entry: ['sendNextAfter1Second'],
             on: {
               NEXT: {
                 target: 'major',
@@ -63,8 +72,8 @@ const appMachine = Machine(
   },
   {
     actions: {
-      sendMinorDelay3Secs: send('MINOR', { delay: 3000 }),
-      sendMajorDelay1Sec: send('MAJOR', { delay: 1000 }),
+      sendNextAfter3Seconds: send('NEXT', { delay: 3000 }),
+      sendNextAfter1Second: send('NEXT', { delay: 1000 }),
       sendMajor: send((context, event) => ({
         type: 'MAJOR'
       })),

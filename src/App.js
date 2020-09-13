@@ -34,6 +34,18 @@ function App() {
         <Light direction="east" color="yellow" service={current} />
         <Light direction="east" color="green" service={current} />
       </div>
+      <div className="stopLight" style={{}}>
+        South
+        <Light direction="south" color="red" service={current} />
+        <Light direction="south" color="yellow" service={current} />
+        <Light direction="south" color="green" service={current} />
+      </div>
+      <div className="stopLight" style={{}}>
+        West
+        <Light direction="west" color="red" service={current} />
+        <Light direction="west" color="yellow" service={current} />
+        <Light direction="west" color="green" service={current} />
+      </div>
       <button onClick={next}>Advance</button>
     </div>
   );
