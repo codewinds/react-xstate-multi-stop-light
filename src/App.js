@@ -22,25 +22,25 @@ function App() {
 
   return (
     <div className="App">
-      <div className="stopLight" style={{}}>
+      <div className="stopLight">
         North
         <Light direction="north" color="red" service={current} />
         <Light direction="north" color="yellow" service={current} />
         <Light direction="north" color="green" service={current} />
       </div>
-      <div className="stopLight" style={{}}>
+      <div className="stopLight">
         East
         <Light direction="east" color="red" service={current} />
         <Light direction="east" color="yellow" service={current} />
         <Light direction="east" color="green" service={current} />
       </div>
-      <div className="stopLight" style={{}}>
+      <div className="stopLight">
         South
         <Light direction="south" color="red" service={current} />
         <Light direction="south" color="yellow" service={current} />
         <Light direction="south" color="green" service={current} />
       </div>
-      <div className="stopLight" style={{}}>
+      <div className="stopLight">
         West
         <Light direction="west" color="red" service={current} />
         <Light direction="west" color="yellow" service={current} />
@@ -53,7 +53,7 @@ function App() {
 
 function Light({ direction, color, service }) {
   return (
-    <div style={{}}>
+    <div>
       <div className="light">
         {service.matches(`${direction}.${color}`) ? (
           <div className="core" style={{ backgroundColor: color }}></div>
