@@ -2,7 +2,7 @@ body {
   margin: 20px;
 }
 
-.App {
+.lightGrid {
   display: grid;
   grid-template-columns: 110px 110px 110px 110px;
   grid-gap: 10px;
@@ -27,4 +27,12 @@ body {
   height: 40px;
   width: 40px;
   border-radius: 50%;
+}
+
+.controls {
+  margin-top: 10px;
+}
+
+.status {
+  margin-top: 20px;
 }

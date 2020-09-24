@@ -18,35 +18,46 @@ function App() {
   console.log('current.value', current.value);
   console.log('state.context', current.context);
 
-  const next = () => send('NEXT');
+  const next = () => send('NEXT', { manual: true });
+  const toggleTimer = () => send('TIMER_TOGGLE');
 
   return (
     <div className="App">
-      <div className="stopLight">
-        North
-        <Light direction="north" color="red" service={current} />
-        <Light direction="north" color="yellow" service={current} />
-        <Light direction="north" color="green" service={current} />
+      <div className="lightGrid">
+        <div className="stopLight">
+          North
+          <Light direction="north" color="red" service={current} />
+          <Light direction="north" color="yellow" service={current} />
+          <Light direction="north" color="green" service={current} />
+        </div>
+        <div className="stopLight">
+          East
+          <Light direction="east" color="red" service={current} />
+          <Light direction="east" color="yellow" service={current} />
+          <Light direction="east" color="green" service={current} />
+        </div>
+        <div className="stopLight">
+          South
+          <Light direction="south" color="red" service={current} />
+          <Light direction="south" color="yellow" service={current} />
+          <Light direction="south" color="green" service={current} />
+        </div>
+        <div className="stopLight">
+          West
+          <Light direction="west" color="red" service={current} />
+          <Light direction="west" color="yellow" service={current} />
+          <Light direction="west" color="green" service={current} />
+        </div>
       </div>
-      <div className="stopLight">
-        East
-        <Light direction="east" color="red" service={current} />
-        <Light direction="east" color="yellow" service={current} />
-        <Light direction="east" color="green" service={current} />
+      <div className="status">
+        Timer status: {current.matches('timer.enabled') ? 'Running' : 'Stopped'}
       </div>
-      <div className="stopLight">
-        South
-        <Light direction="south" color="red" service={current} />
-        <Light direction="south" color="yellow" service={current} />
-        <Light direction="south" color="green" service={current} />
+      <div className="controls">
+        <button onClick={next} disabled={current.matches('timer.enabled')}>
+          Advance
+        </button>
+        <button onClick={toggleTimer}>Toggle Timer</button>
       </div>
-      <div className="stopLight">
-        West
-        <Light direction="west" color="red" service={current} />
-        <Light direction="west" color="yellow" service={current} />
-        <Light direction="west" color="green" service={current} />
-      </div>
-      <button onClick={next}>Advance</button>
     </div>
   );
 }

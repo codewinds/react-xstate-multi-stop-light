@@ -1,4 +1,8 @@
 import { Machine, send } from 'xstate';
+import { interval } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+const LIGHT_INTERVAL_MSECS = 1000;
 
 const stopLightState = {
   states: {
@@ -49,21 +53,42 @@ const appMachine = Machine(
         initial: 'major',
         states: {
           major: {
-            // entry: ['sendNextAfter3Seconds'],
             on: {
               NEXT: {
                 target: 'minor',
-                actions: ['sendMinor']
+                actions: ['sendMinor'],
+                cond: 'readyForMinor'
               }
             }
           },
           minor: {
-            // entry: ['sendNextAfter1Second'],
             on: {
               NEXT: {
                 target: 'major',
-                actions: ['sendMajor']
+                actions: ['sendMajor'],
+                cond: 'readyForMajor'
               }
+            }
+          }
+        }
+      },
+      timer: {
+        initial: 'disabled',
+        states: {
+          disabled: {
+            on: {
+              TIMER_TOGGLE: 'enabled'
+            }
+          },
+          enabled: {
+            on: {
+              TIMER_TOGGLE: 'disabled',
+              LIGHT_TIMER: {
+                actions: ['sendNext']
+              }
+            },
+            invoke: {
+              src: 'startLightTimer'
             }
           }
         }
@@ -72,8 +97,7 @@ const appMachine = Machine(
   },
   {
     actions: {
-      sendNextAfter3Seconds: send('NEXT', { delay: 3000 }),
-      sendNextAfter1Second: send('NEXT', { delay: 1000 }),
+      sendNext: send((context, { idx }) => ({ type: 'NEXT', idx })),
       sendMajor: send((context, event) => ({
         type: 'MAJOR'
       })),
@@ -81,7 +105,21 @@ const appMachine = Machine(
         type: 'MINOR'
       }))
     },
-    services: {}
+    guards: {
+      readyForMinor: (context, { idx, manual }) => {
+        return manual || idx % 2 === 0;
+      },
+      readyForMajor: (context, { idx, manual }) => {
+        return manual || idx % 4 === 0;
+      }
+    },
+    services: {
+      startLightTimer: (context, event) => {
+        return interval(LIGHT_INTERVAL_MSECS).pipe(
+          map((idx) => ({ type: 'LIGHT_TIMER', idx }))
+        );
+      }
+    }
   }
 );
 
