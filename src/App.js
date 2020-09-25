@@ -4,15 +4,15 @@ import { useMachine } from '@xstate/react';
 import { appMachine } from './appMachine';
 import { inspect } from '@xstate/inspect';
 
-inspect({ iframe: false });
+inspect({ iframe: false }); // enables the xstate inspector
 
 const appMachineWithOptions = appMachine.withConfig({
-  services: {}
+  // override actions, services, guards, activities
 });
 
 function App() {
   const [current, send] = useMachine(appMachineWithOptions, {
-    devTools: true
+    devTools: true // enables redux dev tools, also needed for xstate inspector
   });
 
   console.log('current.value', current.value);
