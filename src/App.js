@@ -4,10 +4,10 @@ import { useMachine } from '@xstate/react';
 import { appMachine } from './appMachine';
 import { inspect } from '@xstate/inspect';
 
-inspect({ iframe: false });
+inspect({ iframe: false }); // enables the xstate inspect window
 
 const appMachineWithOptions = appMachine.withConfig({
-  services: {}
+  // you can override actions, services, guards, activities
 });
 
 function App() {
@@ -29,24 +29,6 @@ function App() {
           <Light direction="north" color="red" service={current} />
           <Light direction="north" color="yellow" service={current} />
           <Light direction="north" color="green" service={current} />
-        </div>
-        <div className="stopLight">
-          East
-          <Light direction="east" color="red" service={current} />
-          <Light direction="east" color="yellow" service={current} />
-          <Light direction="east" color="green" service={current} />
-        </div>
-        <div className="stopLight">
-          South
-          <Light direction="south" color="red" service={current} />
-          <Light direction="south" color="yellow" service={current} />
-          <Light direction="south" color="green" service={current} />
-        </div>
-        <div className="stopLight">
-          West
-          <Light direction="west" color="red" service={current} />
-          <Light direction="west" color="yellow" service={current} />
-          <Light direction="west" color="green" service={current} />
         </div>
       </div>
       <div className="status">

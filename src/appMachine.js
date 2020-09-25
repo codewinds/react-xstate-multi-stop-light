@@ -4,26 +4,6 @@ import { map } from 'rxjs/operators';
 
 const LIGHT_INTERVAL_MSECS = 1000;
 
-const stopLightState = {
-  states: {
-    green: {
-      on: {
-        MINOR: 'yellow'
-      }
-    },
-    yellow: {
-      on: {
-        MAJOR: 'red'
-      }
-    },
-    red: {
-      on: {
-        MAJOR: 'green'
-      }
-    }
-  }
-};
-
 const appMachine = Machine(
   {
     id: 'app',
@@ -32,42 +12,20 @@ const appMachine = Machine(
       north: {
         id: 'north',
         initial: 'green',
-        ...stopLightState
-      },
-      east: {
-        id: 'east',
-        initial: 'red',
-        ...stopLightState
-      },
-      south: {
-        id: 'south',
-        initial: 'green',
-        ...stopLightState
-      },
-      west: {
-        id: 'west',
-        initial: 'red',
-        ...stopLightState
-      },
-      next: {
-        initial: 'major',
         states: {
-          major: {
+          green: {
             on: {
-              NEXT: {
-                target: 'minor',
-                actions: ['sendMinor'],
-                cond: 'readyForMinor'
-              }
+              NEXT: 'yellow'
             }
           },
-          minor: {
+          yellow: {
             on: {
-              NEXT: {
-                target: 'major',
-                actions: ['sendMajor'],
-                cond: 'readyForMajor'
-              }
+              NEXT: 'red'
+            }
+          },
+          red: {
+            on: {
+              NEXT: 'green'
             }
           }
         }
@@ -97,21 +55,7 @@ const appMachine = Machine(
   },
   {
     actions: {
-      sendNext: send((context, { idx }) => ({ type: 'NEXT', idx })),
-      sendMajor: send((context, event) => ({
-        type: 'MAJOR'
-      })),
-      sendMinor: send((context, event) => ({
-        type: 'MINOR'
-      }))
-    },
-    guards: {
-      readyForMinor: (context, { idx, manual }) => {
-        return manual || idx % 2 === 0;
-      },
-      readyForMajor: (context, { idx, manual }) => {
-        return manual || idx % 4 === 0;
-      }
+      sendNext: send((context, { idx }) => ({ type: 'NEXT', idx }))
     },
     services: {
       startLightTimer: (context, event) => {
