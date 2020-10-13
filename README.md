@@ -1,4 +1,6 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# react-xstate-multi-stop-light
+
+An example of using a variety of XState FSM and Statechart features to create a multi-stop light React.js app.
 
 ## Available Scripts
 
